@@ -4,7 +4,6 @@ import graph_coverage
 
 def main():
     # st.title("Graph Coverage Prime Paths")
-
     st.sidebar.title("Navigation")
     page = st.sidebar.radio("Select a page:", ["Home", "Test Path"])
 
