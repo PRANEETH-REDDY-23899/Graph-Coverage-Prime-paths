@@ -112,7 +112,7 @@ def dfs(graph, node, visited, path, all_paths, end_node):
     visited.remove(node)
     path.pop()
 
-
+'''
 def is_subpath(subpath, path):
     """Check if subpath is a subpath of path."""
     n = len(subpath)
@@ -171,6 +171,85 @@ def generate_test_paths(graph, start_node, end_node, coverage_criteria):
         st.error("Invalid coverage criteria selected.")
 
     return test_paths
+'''
+
+import networkx as nx
+
+def dfs(graph, node, visited, path, all_paths, end_node):
+    visited.add(node)
+    path.append(node)
+
+    if node == end_node:
+        all_paths.append(path.copy())
+    else:
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                dfs(graph, neighbor, visited, path, all_paths, end_node)
+
+    visited.remove(node)
+    path.pop()
+
+
+def is_subpath(subpath, path):
+    """Check if subpath is a subpath of path."""
+    n = len(subpath)
+    m = len(path)
+    if n > m:
+        return False
+    for i in range(m - n + 1):
+        if path[i:i + n] == subpath:
+            return True
+    return False
+
+
+def generate_prime_paths(graph, start_node, end_node):
+    """Generate prime paths from the graph."""
+    prime_paths = []
+
+    def dfs_prime(node, path):
+        nonlocal prime_paths
+        if node == end_node:
+            prime_paths.append(path.copy())
+        else:
+            for neighbor in graph[node]:
+                if neighbor not in path:
+                    dfs_prime(neighbor, path + [neighbor])
+
+    visited = set()
+    dfs_prime(start_node, [start_node])
+
+    # Remove sub-paths
+    prime_paths = [path for path in prime_paths if not any(is_subpath(subpath, path) for subpath in prime_paths if subpath != path)]
+
+    return prime_paths
+
+
+def generate_test_paths(graph, start_node, end_node, coverage_criteria):
+    test_paths = []
+    
+    if coverage_criteria == "Node Coverage":
+        visited = set()
+        all_paths = []
+        dfs(graph, start_node, visited, [], all_paths, end_node)
+        test_paths = all_paths
+
+    elif coverage_criteria == "Edge Coverage":
+        if graph.has_node(start_node) and graph.has_node(end_node):
+            test_paths = [p for p in nx.all_simple_paths(graph, start_node, end_node)]
+        else:
+            print("Start or end node does not exist in the graph.")
+
+    elif coverage_criteria == "Prime Path Coverage":
+        prime_paths = generate_prime_paths(graph, start_node, end_node)
+        test_paths = prime_paths
+
+    else:
+        print("Invalid coverage criteria selected.")
+
+    return test_paths
+
+
+
 
 def visualize_graph(graph, start_node, end_node, test_paths):
     dot = Digraph()
