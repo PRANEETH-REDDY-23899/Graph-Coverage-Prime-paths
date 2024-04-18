@@ -7,6 +7,7 @@ from coverage_criteria import node_coverege_test_paths, edge_coverage_test_paths
 # Node Coverage Test Cases
 
 # Unit Test - Test whether the node_coverage_test_paths function returns the correct list of paths covering all nodes in the graph
+# purpose: To Test whether the node_coverage_test_paths function returns the correct list of paths covering all nodes in the graph
 def test_node_coverage_unit():
     # Define a simple graph
     graph = {
@@ -19,14 +20,15 @@ def test_node_coverage_unit():
     end_node = 'D'
 
     # Call the function
-    result = node_coverege_test_paths(graph, start_node, end_node)
+    result, un_covered_paths = node_coverege_test_paths(graph, start_node, end_node)
 
     # Check if the returned paths cover all nodes in the graph
     assert set.union(*[set(path) for path in result]) == set(graph.keys())
 
 # Edge Coverage Test Cases
 
-# Unit Test - Test whether the edge_coverage_test_paths function returns the correct extended paths covering all edges in the graph
+# Unit Test - 
+# Purpose: To Test whether the edge_coverage_test_paths function returns the correct extended paths covering all edges in the graph
 def test_edge_coverage_unit():
     # Define a simple graph
     graph = {
@@ -51,9 +53,11 @@ def test_edge_coverage_unit():
     
     assert covered_edges == {(node, next_node) for node in graph for next_node in graph[node]}
 
+
 # Prime Path Coverage Test Cases
 
 # Unit Test - Test whether the prime_path_coverage_test_paths function returns unique prime coverage test paths
+# description: Test whether the prime_path_coverage_test_paths function returns unique prime coverage test paths
 def test_prime_path_coverage_unit():
     # Define a simple graph
     graph = {
@@ -76,6 +80,7 @@ def test_prime_path_coverage_unit():
 
 
 # Integration Test - Test whether the prime_path_coverage_test_paths function integrates well with extending_paths function
+# description: Test whether the prime_path_coverage_test_paths function integrates well with extending_paths function
 def test_prime_path_coverage_integration():
     # Define a simple graph
     graph = {
@@ -97,6 +102,7 @@ def test_prime_path_coverage_integration():
 # Prime Path Coverage Test Cases
 
 # Unit Test - Test whether the prime_path_coverage_test_paths function returns unique prime coverage test paths
+# description: Test whether the prime_path_coverage_test_paths function returns unique prime coverage test paths
 def test_prime_path_coverage_unit():
     # Define a simple graph
     graph = {
@@ -116,6 +122,7 @@ def test_prime_path_coverage_unit():
     assert len(unique_paths) == len(set("".join(path) for path in unique_paths))
 
 # Integration Test - Test whether the prime_path_coverage_test_paths function integrates well with extending_paths function
+# description: Test whether the prime_path_coverage_test_paths function integrates well with extending_paths function
 def test_prime_path_coverage_integration():
     # Define a simple graph
     graph = {
@@ -133,10 +140,14 @@ def test_prime_path_coverage_integration():
     # Check if the returned paths are extended prime coverage test paths
     extended_paths = result[0]
     assert all(len(path) > 1 for path in extended_paths)  # Ensure paths are extended
+
+
 
 # Edge Cases
 
-# Edge Case - Test with empty graph
+
+# Unit test - Test with empty graph
+# description: Test with an empty graph, the function should return an empty list of paths
 def test_empty_graph():
     graph = {}
     start_node = 'A'
@@ -160,7 +171,7 @@ def test_graph_with_loops():
     end_node = 'D'
 
     # Call the function
-    result = node_coverege_test_paths(graph, start_node, end_node)
+    result, un_covered = node_coverege_test_paths(graph, start_node, end_node)
 
     # Check if the result is empty (shouldn't be able to cover all nodes due to the loop)
     assert set.union(*[set(path) for path in result]) == set(graph.keys())
@@ -177,10 +188,10 @@ def test_graph_with_isolated_nodes():
     end_node = 'D'
 
     # Call the function
-    result = node_coverege_test_paths(graph, start_node, end_node)
+    result, un_covered_paths = node_coverege_test_paths(graph, start_node, end_node)
 
     # Check if the result is empty (isolated nodes cannot be reached)
-    print(result)
+    # print(result)
     assert result == []
 
 
