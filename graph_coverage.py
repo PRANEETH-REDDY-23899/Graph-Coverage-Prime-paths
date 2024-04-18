@@ -4,6 +4,8 @@ from graphviz import Digraph
 import matplotlib.pyplot as plt
 from io import BytesIO
 
+from coverage_criteria import node_coverege_test_paths, edge_coverage_test_paths, prime_path_coverage_test_paths
+
 # def dfs(graph, node, visited, path, all_paths, end_node):
 #     visited.add(node)
 #     path.append(node)
@@ -174,7 +176,7 @@ def generate_test_paths(graph, start_node, end_node, coverage_criteria):
 '''
 
 import networkx as nx
-
+'''
 def dfs(graph, node, visited, path, all_paths, end_node):
     visited.add(node)
     path.append(node)
@@ -247,7 +249,102 @@ def generate_test_paths(graph, start_node, end_node, coverage_criteria):
         print("Invalid coverage criteria selected.")
 
     return test_paths
+'''
+'''
+def dfs(graph, current_node, visited, path, all_paths, end_node):
+    path.append(current_node)
+    #  if the there are no neighbors of the current node, then it is the end node and we have found a path
 
+    if not graph.neighbors(current_node):
+        all_paths.append(path.copy())
+    # if current_node == end_node:
+    #     all_paths.append(path.copy())
+    else:
+        visited.add(current_node)
+        for neighbor in graph.neighbors(current_node):
+            if neighbor not in visited or neighbor == end_node:
+                dfs(graph, neighbor, visited.copy(), path, all_paths, end_node)
+
+    path.pop()
+'''
+
+
+def dfs(graph, current_node, visited, path, all_paths,end_node):
+    path.append(current_node)
+
+    visited.add(current_node)
+
+    # Check if there are unvisited neighbors
+    unvisited_neighbors = [neighbor for neighbor in graph.neighbors(current_node) if neighbor not in visited]
+
+    if not unvisited_neighbors:
+        # If there are no unvisited neighbors, this is a dead-end, add the current path to all_paths
+        all_paths.append(path.copy())
+    else:
+        # Explore each unvisited neighbor
+        for neighbor in unvisited_neighbors:
+            dfs(graph, neighbor, visited.copy(), path, all_paths,end_node)
+
+    path.pop()
+
+
+def generate_prime_paths(graph, start_node, end_node):
+    all_paths = []
+    dfs(graph, start_node, set(), [], all_paths, end_node)
+    prime_paths = []
+    for path in all_paths:
+        if len(set(path)) == len(path) + 1:  # For prime path coverage, allow starting node to be repeated
+            is_prime = True
+            for i in range(len(path)):
+                for j in range(i+1, len(path)):
+                    if path[i] in graph.neighbors(path[j]):
+                        is_prime = False
+                        break
+                if not is_prime:
+                    break
+            if is_prime:
+                prime_paths.append(path)
+    return prime_paths
+
+def generate_test_paths(graph, start_node, end_node, coverage_criteria):
+
+   
+    
+    if coverage_criteria == "Node Coverage":
+        # visited = set()
+        # all_paths = []
+        # dfs(graph, start_node, visited, [], all_paths, end_node)
+        # test_paths = all_paths
+        node_coverage = node_coverege_test_paths(graph, start_node, end_node)
+
+        return node_coverage
+
+
+    elif coverage_criteria == "Edge Coverage":
+        # if graph.has_node(start_node) and graph.has_node(end_node):
+        #     test_paths = [p for p in nx.all_simple_paths(graph, start_node, end_node)]
+        # else:
+        #     print("Start or end node does not exist in the graph.")
+
+        (edge_coverage, not_covered) = edge_coverage_test_paths(graph, start_node, end_node)
+
+        for path in not_covered:
+            if len(path)==2:
+                return []
+        return edge_coverage
+    
+        
+    elif coverage_criteria == "Prime Path Coverage":
+        # prime_paths = generate_prime_paths(graph, start_node, end_node)
+        # test_paths = prime_paths
+        (prime_path_coverage, un_covered_paths) = prime_path_coverage_test_paths(graph, start_node, end_node)
+
+        return prime_path_coverage
+
+    else:
+        print("Invalid coverage criteria selected.")
+
+    
 
 
 
@@ -325,12 +422,21 @@ def display_test_path_page():
 
     # graph_input = st.text_area("Enter the graph (in adjacency list format):")
     graph_input = st.text_area("Enter the graph for DFS (format: {'node': ['neighbor1', 'neighbor2', ...]})", value="{'A': ['B', 'C'], 'B': ['D'], 'C': ['E'], 'D': ['F'], 'E': ['F'], 'F': []}")
-    start_node = st.text_input("Enter the starting node:")
-    end_node = st.text_input("Enter the ending node:")
+    start_node = st.text_input("Enter the starting node: format: A", value= 'A')
+    end_node = st.text_input("Enter the ending node: format: F ", value= 'F')
 
-    if st.button("Display Graph"):
-        graph = eval(graph_input)
-        st.image(display_input_graph(graph,start_node,end_node), caption="Input Graph", use_column_width=True)
+    if not graph_input or not start_node or not end_node:
+        st.error("Please fill in all the required fields.")
+
+    if st.button("Display Graph") and graph_input and start_node and end_node:
+        if start_node in graph_input and end_node in graph_input:
+            graph = eval(graph_input)
+            st.image(display_input_graph(graph,start_node,end_node), caption="Input Graph", use_column_width=True)
+        else:
+            # Display the message in red color
+            st.error("Please enter valid starting and ending nodes to display the graph./ Start Node {} and end Node {} should be present in the graph.".format(start_node,end_node))
+            # st.write("Please enter valid starting and ending nodes to display the graph./ Start and end nodes should be present in the graph.")
+    
 
 
         # graph = eval(graph_input)
@@ -393,16 +499,44 @@ def display_test_path_page():
             # Convert graph to NetworkX DiGraph
             st.image(display_input_graph(graph,start_node,end_node), caption="Input Graph", use_column_width=True)
             graph_nx = nx.DiGraph(graph)
-            test_paths = generate_test_paths(graph_nx, start_node, end_node, coverage_criteria)
-            st.subheader("Generated Test Paths:")
-            if test_paths:
-                st.write("\n".join([f"Test Path {i+1}: {path}" for i, path in enumerate(test_paths)]))
-            else:
-                st.write("No test paths generated.")
-            st.write("")  # Add a space for better visualization
 
-            # Visualize the graph
-            visualize_graph(graph_nx, start_node, end_node, test_paths)
+            test_paths = generate_test_paths(graph, start_node, end_node, coverage_criteria)
+
+            All_Node = set(list(graph.keys()))
+
+            set_of_test_paths = []
+            for path in test_paths:
+                set_of_test_paths.extend(path)
+            # print(set(set_of_test_paths))
+            # print(test_paths)
+
+            check_final_node_paths=[]
+
+            for path in test_paths:
+                if path[-1] != end_node:
+                    check_final_node_paths.append(path)
+                    
+            unvisited_nodes = All_Node - set(set_of_test_paths)
+
+            if unvisited_nodes:
+                st.error("The path do not cover all nodes in the graph. Please try a different coverage criteria. The unvisited nodes are: {}".format(unvisited_nodes))
+                st.write("Can not generate a set of test paths to satisfy the {} coverage criteria".format(coverage_criteria))
+
+            elif check_final_node_paths:
+                st.error("Some paths do not contain the end node. The paths that do not contain the end node are: {}".format(check_final_node_paths))
+
+            else:
+                st.subheader("Generated Test Paths:")
+                if test_paths:
+                    st.write("\n\n".join([f"Test Path  {i+1}: {' -> '.join(path)}" for i, path in enumerate(test_paths)]))
+
+                    # st.write ("set of test paths",set(set_of_test_paths))
+                else:
+                    st.write("No test paths generated.")
+                st.write(" ")
+
+                # Visualize the graph
+                visualize_graph(graph_nx, start_node, end_node, test_paths)
 
 # Display the test path generation page
 display_test_path_page()
