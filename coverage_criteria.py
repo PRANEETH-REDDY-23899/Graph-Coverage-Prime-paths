@@ -149,7 +149,8 @@ def node_coverege_test_paths(graph,start_node,end_node):
         data.append((path,len(set(path)), len(path)))
     data_sorted = sorted(data, key=lambda x: (x[1], -x[2]), reverse=True)
     node_cover_paths= node_coverge(list(graph.keys()),data_sorted)
-    return node_cover_paths
+
+    return node_cover_paths, un_extended_prime_test_paths
 
 # Edge Coverage
 
@@ -394,16 +395,15 @@ def prime_path_coverage_test_paths(graph,start_node,end_node):
 # print(Nodes)
 
 
-''''
+
 graph = {
         'A': ['B', 'C'],
-        'B': [],
-        'C': [],
+        'B': ['C'],
+        'C': ['D'],
         'D': []
     }
-graph_input = graph
 start_node = 'A'
-end_node = 'D'
+end_node = 'B'
 
 
 prime_paths = find_prime_paths(graph)
@@ -443,7 +443,6 @@ print('un covered')
 
 print(un_extended)
 
-'''
 
 
 
