@@ -1,9 +1,11 @@
 import streamlit as st
+import re
 import networkx as nx
 from graphviz import Digraph
 import matplotlib.pyplot as plt
 from io import BytesIO
 import networkx as nx
+import ast
 from coverage_criteria import node_coverege_test_paths, edge_coverage_test_paths, prime_path_coverage_test_paths
 
 
@@ -181,20 +183,89 @@ def display_input_graph(graph, start_node, end_node):
     buf.seek(0)
     return buf
 
+
+def remove_empty_spaces(graph_input):
+    cleaned_graph = {}
+    for node, neighbors in graph_input.items():
+        cleaned_node = node.strip()  # Remove leading and trailing whitespace from the node
+        cleaned_neighbors = [neighbor.strip() for neighbor in neighbors]
+        cleaned_graph[cleaned_node] = cleaned_neighbors
+    return cleaned_graph
+
+def check_graph_syntax(graph_input):
+        try:
+            graph = eval(graph_input)
+            # print(graph)
+            if not isinstance(graph, dict):
+                return False
+            for node, neighbors in graph.items():
+                if not isinstance(neighbors, list):
+                    return False
+                for neighbor in neighbors:
+                    if not isinstance(neighbor, str):
+                        return False
+            return True
+        except:
+            return False
+
 def display_test_path_page():
     st.header("Test Path Generation")
 
     # graph_input = st.text_area("Enter the graph (in adjacency list format):")
     graph_input = st.text_area("Enter the graph for DFS (format: {'node': ['neighbor1', 'neighbor2', ...]})", value="{'A': ['B', 'C'], 'B': ['D'], 'C': ['E'], 'D': ['F'], 'E': ['F'], 'F': []}")
+    # graph_input = st.text_area("Enter the graph for DFS (format: {node: [neighbor1, neighbor2, ...]})", value="{A: [B, C], B: [D],C: [E], D: [F], E: [F], F : []}")
+
     start_node = st.text_input("Enter the starting node: format: A", value= 'A')
     end_node = st.text_input("Enter the ending node: format: F ", value= 'F')
 
+
+    # graph_input = parse_graph_input(graph_input)
+
+    # delete spaces in graph in each string both front and back
+
+
+    # def remove_empty_spaces(graph_input):
+    #     cleaned_graph = {}
+    #     for node, neighbors in graph_input.items():
+    #         cleaned_node = node.strip()  # Remove leading and trailing whitespace from the node
+    #         cleaned_neighbors = [neighbor.strip() for neighbor in neighbors]
+    #         cleaned_graph[cleaned_node] = cleaned_neighbors
+    #     return cleaned_graph
+ 
+   
+    # def check_graph_syntax(graph_input):
+    #     try:
+    #         graph = eval(graph_input)
+    #         # print(graph)
+    #         if not isinstance(graph, dict):
+    #             return False
+    #         for node, neighbors in graph.items():
+    #             if not isinstance(neighbors, list):
+    #                 return False
+    #             for neighbor in neighbors:
+    #                 if not isinstance(neighbor, str):
+    #                     return False
+    #         return True
+    #     except:
+            # return False
+    
+    # if not check_graph_syntax(graph_input):
+    #     st.error("Please enter a valid graph in the correct format.")
+    #     return
+
+    if not check_graph_syntax(graph_input):
+        st.error("Please enter a valid graph in the correct format. You can be missing a comma ',' or a bracket.'[]'")
+        return
+
+    graph_input = remove_empty_spaces(ast.literal_eval(graph_input))
+
+   
     if not graph_input or not start_node or not end_node:
         st.error("Please fill in all the required fields.")
 
     if st.button("Display Graph") and graph_input and start_node and end_node:
         if start_node in graph_input and end_node in graph_input:
-            graph = eval(graph_input)
+            graph = graph_input
             st.image(display_input_graph(graph,start_node,end_node), caption="Input Graph", use_column_width=True)
         else:
             # Display the message in red color
@@ -257,7 +328,8 @@ def display_test_path_page():
 
     if st.button("Generate Test Paths") and graph_input and start_node and end_node and coverage_criteria:
         # input_graph = [tuple(line.split()) for line in graph_input.split('\n') if line.strip()]
-        graph = eval(graph_input)  # Convert string input to dictionary
+        # graph = eval(graph_input)  # Convert string input to dictionary
+        graph = graph_input
         # print(graph)
         if not graph_input:
             st.error("Please enter a valid graph.")

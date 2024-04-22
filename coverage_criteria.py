@@ -11,8 +11,13 @@ def extend_path(graph, path, start_node, end_node, visited=None):
         # Extend path to start_node
         while path[0] != start_node:
             current_node = path[0]
-            next_nodes = graph[current_node]
+            # next_nodes = graph[current_node]
             # Check if the node has only one neighbor to avoid creating cycles
+            next_nodes=[]
+            for node, val in graph.items():
+                if current_node in val:
+                    next_nodes.append(node)
+        
             if len(next_nodes) == 1:
                 path.insert(0, next_nodes[0])
             else:
@@ -120,7 +125,6 @@ def filter_unique_non_subpaths(extended_test_paths):
 
 def node_coverege_test_paths(graph,start_node,end_node):
 
-
     if not graph:
         return []
     if start_node not in graph or end_node not in graph:
@@ -163,16 +167,39 @@ def edge_coverage_test_paths(graph, start_node, end_node):
         raise KeyError("Start or end node not in graph")
     
 
-    edges=[]
+    edges=set()
+
     for key,val in graph.items():
         for node in val:
-            edges.append([key,node])
+            edges.add((key,node))
+    
+    # print('Edges', edges)
             
     extended, unextended = extending_paths(graph,edges,start_node,end_node)
 
     unique_exteded = filter_unique_non_subpaths(extended)
 
-    return (extended, unextended)
+    extended_set= set()
+    for path in extended:
+        extended_set.add(tuple(path))
+
+    extended = [list(path) for path in extended_set]
+
+
+    #exploring edges in the extended paths
+
+    unique_extended_edges = set()
+    unique_edge_covered_paths = []
+
+    for path in extended:
+        for i in range(len(path)-1):
+            unique_extended_edges.add((path[i],path[i+1]))
+        unique_edge_covered_paths.append(path)
+        # check if edges are covered
+        if unique_extended_edges == set(edges):
+            break
+
+    return (unique_edge_covered_paths, unextended)
 
     
 
@@ -269,8 +296,12 @@ def prime_path_coverage_test_paths(graph,start_node,end_node):
         # Extend path to start_node
         while path[0] != start_node:
             current_node = path[0]
-            next_nodes = graph[current_node]
+            # next_nodes = graph[current_node]
             # Check if the node has only one neighbor to avoid creating cycles
+            next_nodes=[]
+            for node, val in graph.items():
+                if current_node in val:
+                    next_nodes.append(node)
             if len(next_nodes) == 1:
                 path.insert(0, next_nodes[0])
             else:
@@ -373,6 +404,12 @@ def prime_path_coverage_test_paths(graph,start_node,end_node):
     string_paths = list_of_strings(extended_prime_test_paths,[])
 
     unique_prime_coverage_test_paths = filter_unique_non_subpaths(string_paths)
+
+    if extended_prime_test_paths and not unique_prime_coverage_test_paths:
+        unique_exteden_paths = set()
+        for path in extended_prime_test_paths:
+            unique_exteden_paths.add(tuple(path))
+        unique_prime_coverage_test_paths = [list(path) for path in unique_exteden_paths]
     
     return (unique_prime_coverage_test_paths, un_extended_prime_test_paths)
 
@@ -382,10 +419,10 @@ def prime_path_coverage_test_paths(graph,start_node,end_node):
 
 
        
-# graph_input = {"A": ["B", "C"], "B": ["C", "A"], "C": ["B", "A"]}
-# graph= graph_input
-# start_node = "A"
-# end_node = "A"
+graph_input = {"A": ["B", "C"], "B": ["C", "A"], "C": ["B", "A"]}
+graph= graph_input
+start_node = "A"
+end_node = "A"
 
 # graph_input= {"A": ["B", "C"], "B": ["C", "A"], "C": []}
 # graph = graph_input
@@ -394,16 +431,21 @@ def prime_path_coverage_test_paths(graph,start_node,end_node):
 # Nodes = list(graph_input.keys())
 # print(Nodes)
 
+# graph_input = {"A": ["B"], "B": ["C"], "C": ["D"], "D": ["A"]}
+# graph = graph_input
+# start_node = 'A'
+# end_node = 'D'
 
 
-graph = {
-        'A': ['B', 'C'],
-        'B': ['C'],
-        'C': ['D'],
-        'D': []
-    }
-start_node = 'A'
-end_node = 'B'
+
+# graph = {
+#         'A': ['B', 'C'],
+#         'B': ['C'],
+#         'C': ['D'],
+#         'D': []
+#     }
+# start_node = 'A'
+# end_node = 'B'
 
 
 prime_paths = find_prime_paths(graph)

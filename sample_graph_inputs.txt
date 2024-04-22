@@ -1,0 +1,9 @@
+
+graph 1: Graph with loops
+
+graph = {'A': ['B', 'C'], 'B': ['C'], 'C': ['D','E'], 'D': ['F'], 'E': ['G','F'],  'G':['E'], 'F': []}
+start_node = 'A'
+end_node = 'F'
+
+
+
