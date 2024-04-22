@@ -6,4 +6,28 @@ start_node = 'A'
 end_node = 'F'
 
 
+graph 2 : Graph with same start_node and end_node and loops.
+
+graph = {"A": ["B", "C"], "B": ["C", "A"], "C": ["B", "A"]}
+start_node = "A"
+end_node = "A"
+
+
+graph 3: 
+
+graph = {"A": ["B", "C"], "B": ["C", "A"], "C": []}
+start_node = 'A'
+end_node = 'B'
+
+
+graph 4: simple loop
+
+graph = {
+        'A': ['B', 'C'],
+        'B': ['C'],
+        'C': ['D'],
+        'D': []
+        }
+start_node = 'A'
+end_node = 'B'
 

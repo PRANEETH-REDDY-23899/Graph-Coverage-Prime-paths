@@ -207,6 +207,19 @@ def check_graph_syntax(graph_input):
             return True
         except:
             return False
+        
+def invalid_start_or_end_node(graph_input, start_node, end_node):
+    if start_node not in graph_input:
+        raise KeyError(f"Start node '{start_node}' not found in the graph input")
+    if end_node not in graph_input:
+        raise KeyError(f"End node '{end_node}' not found in the graph input")
+    return False  # Both nodes are valid
+
+def check_empty_graph(graph_input):
+    if not graph_input:
+        st.error("Please enter a valid graph in the correct format.")
+        return False
+    return True
 
 def display_test_path_page():
     st.header("Test Path Generation")
@@ -253,15 +266,28 @@ def display_test_path_page():
     #     st.error("Please enter a valid graph in the correct format.")
     #     return
 
+    # raise key error if start or end node is not in the graph
+   
+    
+
+
     if not check_graph_syntax(graph_input):
-        st.error("Please enter a valid graph in the correct format. You can be missing a comma ',' or a bracket.'[]'")
+        st.error('''
+                 Please enter a valid graph in the correct format. 
+                 You can be missing a comma ',' 
+                 or a bracket.'[]{}' 
+                 or graph is empty
+                 or  your graph syntax is wrong. 
+                 ''')
         return
 
     graph_input = remove_empty_spaces(ast.literal_eval(graph_input))
 
-   
+    
+
     if not graph_input or not start_node or not end_node:
         st.error("Please fill in all the required fields.")
+        # invalid_start_or_end_node(graph_input, start_node, end_node)
 
     if st.button("Display Graph") and graph_input and start_node and end_node:
         if start_node in graph_input and end_node in graph_input:

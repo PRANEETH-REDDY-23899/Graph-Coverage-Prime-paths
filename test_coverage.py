@@ -2,16 +2,18 @@
                                 CSI 680 Milestone 4
                                         Team K
 Team Members:
-    1. Praneeth Reddy Nakka (pnakka@albany.edu)
-    2. Praneeth Yennam (pyennam@albany.edu)
-    3. Rohith Jellipalli (rjellipalli@albany.edu)
-    4. Ajay Kumar Reddy Boreddy (aboreddy@albany.edu)
+        1. Praneeth Reddy Nakka (pnakka@albany.edu).
+        2. Praneeth Yennam (pyennam@albany.edu).
+        3. Rohith Jellipalli (rjellipalli@albany.edu).
+        4. Ajay Kumar Reddy Boreddy (aboreddy@albany.edu).
 
 Project:Graph Coverage prime paths.
-        Graph coverage prime paths is a software tool that we are going to build 
-        that will help the users by generating test paths to satisfy graph coverage 
-        test criteria. The tool will prompt the user to enter the graph and choose 
-        the start and end nodes appropriately.
+        Graph coverage prime paths is a website we built that will help the users 
+        by generating test paths to satisfy graph coverage test criteria. The website
+        will prompt the user to enter the graph and choose the start and end nodes 
+        appropriately.The user then must choose one of the three criteria. 
+        (Node coverage, edge coverage, prime path coverage). The website will then
+        generate the test paths based on the criteria chosen by the user.
 
 '''
 # -------------------------------------------------------------------------------------
@@ -21,6 +23,8 @@ Project:Graph Coverage prime paths.
 import pytest # Importing pytest module
 from coverage_criteria import node_coverege_test_paths,edge_coverage_test_paths, prime_path_coverage_test_paths
 from graph_coverage import remove_empty_spaces, check_graph_syntax
+from graph_coverage import  invalid_start_or_end_node, check_empty_graph
+
 from coverage_criteria import find_prime_paths
 
 # -------------------------------------------------------------------------------------
@@ -89,7 +93,7 @@ def test_edge_coverage_unit():
 
 # -------------------------------------------------------------------------------------------
 # Test Case : 3
-# Integration Test - To test prime path coverage 
+# Integration Test - To test prime path coverage. 
 
 '''
 Purpose : The purpose of this test is to validate the integration and functionality of 
@@ -131,11 +135,11 @@ def test_prime_path_coverage_integration():
 # -------------------------------------------------------------------------------------------
 
 # Test Case : 4
-# Unit test - Test Node coverage with empty graph
+# Unit test - Test Node coverage with empty graph.
 '''
 Purpose : The purpose of this test is to ensure that the `node_coverege_test_paths` 
           function behaves as expected when given an empty graph as input. The test 
-          checkswhether the function returns an empty list as expected when the graph 
+          checks whether the function returns an empty list as expected when the graph 
           has no nodes.
 '''
 def test_empty_graph():
@@ -206,24 +210,39 @@ def test_graph_with_isolated_nodes():
 # Test Case : 7
 # Unit Test- Test with invalid start_node or end_node
 '''
-Purpose :  The purpose of this test is to ensure that the `node_coverege_test_paths` 
+Purpose :  The purpose of this test is to ensure that the `invalid_start_or_end_node` 
            function correctly raises a KeyError when provided with an invalid start node
            that does not exist in the graph. The test uses pytest.raises to check whether
            the function raises the expected exception.
 '''
 def test_invalid_start_or_end_node():
-    graph = {
+    # Define a sample graph input
+    graph_input = {
         'A': ['B', 'C'],
         'B': ['C'],
         'C': ['D'],
         'D': []
     }
-    start_node = 'X'  # Invalid start node
-    end_node = 'D'
-
-    # Call the function
+    
+    # Define valid start and end nodes
+    valid_start_node = 'A'
+    valid_end_node = 'D'
+    
+    # Define invalid start and end nodes
+    invalid_start_node = 'X'
+    invalid_end_node = 'Z'
+    
+    # Test with valid start and end nodes
+    assert not invalid_start_or_end_node(graph_input, valid_start_node, valid_end_node)
+    
+    # Test with invalid start node
     with pytest.raises(KeyError):
-        node_coverege_test_paths(graph, start_node, end_node)
+        invalid_start_or_end_node(graph_input, invalid_start_node, valid_end_node)
+    
+    # Test with invalid end node
+    with pytest.raises(KeyError):
+        invalid_start_or_end_node(graph_input, valid_start_node, invalid_end_node)
+
 
 # -------------------------------------------------------------------------------------------
 # Test Case : 8
@@ -492,5 +511,22 @@ def test_prime_path_coverage_unreached_end_node():
 
     # Check if the returned paths match the expected paths
     assert extended_paths == expected_paths
+
+# --------------------------------------------------------------------------------------
+
+# Test Case : 15
+# Unit Test - To test the empty graph 
+'''
+Purpose : The purpose of this test case is to ensure that the `check_empty_graph`
+        function correctly identifies whether a provided graph input is empty or not.
+'''
+def test_check_empty_graph():
+    # Test with an empty graph input
+    empty_graph_input = {}
+    assert not check_empty_graph(empty_graph_input)
+
+    # Test with a non-empty graph input
+    non_empty_graph_input = {'A': ['B'], 'B': ['C'], 'C': []}
+    assert check_empty_graph(non_empty_graph_input)
 
 # --------------------------------------------------------------------------------------
