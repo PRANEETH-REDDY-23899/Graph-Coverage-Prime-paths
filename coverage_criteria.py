@@ -447,7 +447,7 @@ end_node = "A"
 # start_node = 'A'
 # end_node = 'B'
 
-
+'''
 prime_paths = find_prime_paths(graph)
 print("\nPrime Paths:")
 for path in prime_paths:
@@ -486,6 +486,6 @@ print('un covered')
 print(un_extended)
 
 
-
+'''
 
 
