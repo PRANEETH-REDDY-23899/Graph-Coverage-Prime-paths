@@ -400,6 +400,7 @@ def display_test_path_page():
 
             else:
                 st.subheader("Generated Test Paths:")
+                st.write("{} criteria".format(coverage_criteria))
                 if test_paths:
                     st.write("\n\n".join([f"Test Path  {i+1}: {' -> '.join(path)}" for i, path in enumerate(test_paths)]))
 
